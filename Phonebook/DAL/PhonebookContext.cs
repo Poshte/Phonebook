@@ -14,5 +14,6 @@ namespace Phonebook.DAL
 
         public DbSet<Contact> Contacts { get; set; }
         public DbSet<IdentityUser> Users { get; set; }
+        public DbSet<IdentityUserClaim<string>> Claims { get; set; }
     }
 }
