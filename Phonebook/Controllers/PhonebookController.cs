@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Phonebook.Controllers.Services;
 using Phonebook.DAL;
 using Phonebook.Models;
 using System.Collections.Generic;
@@ -11,17 +12,20 @@ namespace Phonebook.Controllers
     [Authorize]
     public class PhonebookController : Controller
     {
-        private readonly PhonebookContext _dbContext;
+        private readonly IContactRepository _contactRepository;
+        private readonly ContactOrderingService _orderingService;
 
-        public PhonebookController(PhonebookContext dbContext)
+        public PhonebookController(IContactRepository contactRepository, ContactOrderingService orderingService)
         {
-            _dbContext = dbContext;
+            _contactRepository = contactRepository;
+            _orderingService = orderingService;
         }
+
 
         public IActionResult Index()
         {
-            var contacts = _dbContext.Contacts.OrderBy(c => c.CreatedAt).ToList();
-            Order(contacts);
+            var contacts = _contactRepository.GetAllContacts();
+            _orderingService.OrderContacts(contacts);
             return View(contacts);
         }
 
@@ -36,9 +40,7 @@ namespace Phonebook.Controllers
         {
             if (ModelState.IsValid)
             {
-                contact.CreatedAt = System.DateTime.Now;
-                _dbContext.Contacts.Add(contact);
-                _dbContext.SaveChanges();
+                _contactRepository.AddContact(contact);
                 return RedirectToAction(nameof(Index));
             }
 
@@ -47,7 +49,7 @@ namespace Phonebook.Controllers
 
         public IActionResult Edit(int id)
         {
-            var contact = _dbContext.Contacts.Find(id);
+            var contact = _contactRepository.GetContactById(id);
             if (contact == null)
             {
                 return NotFound();
@@ -62,8 +64,7 @@ namespace Phonebook.Controllers
         {
             if (ModelState.IsValid)
             {
-                _dbContext.Contacts.Update(contact);
-                _dbContext.SaveChanges();
+                _contactRepository.UpdateContact(contact);
                 return RedirectToAction(nameof(Index), "Phonebook");
             }
 
@@ -72,7 +73,7 @@ namespace Phonebook.Controllers
 
         public IActionResult Delete(int id)
         {
-            var contact = _dbContext.Contacts.Find(id);
+            var contact = _contactRepository.GetContactById(id);
             if (contact == null)
             {
                 NotFound();
@@ -84,24 +85,14 @@ namespace Phonebook.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Remove(int id)
         {
-            var contact = _dbContext.Contacts.Find(id);
+            var contact = _contactRepository.GetContactById(id);
             if (contact == null)
             {
                 return NotFound();
             }
-
-            _dbContext.Contacts.Remove(contact);
-            _dbContext.SaveChanges();
+            _contactRepository.DeleteContact(contact);
 
             return RedirectToAction(nameof(Index));
-        }
-
-        public void Order(List<Contact> contacts)
-        {
-            for (int i = 0; i < contacts.Count; i++)
-            {
-                contacts[i].Order = i + 1;
-            }
         }
     }
 }
