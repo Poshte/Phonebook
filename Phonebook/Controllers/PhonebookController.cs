@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Phonebook.DAL;
 using Phonebook.Models;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Phonebook.Controllers
@@ -18,7 +20,8 @@ namespace Phonebook.Controllers
 
         public IActionResult Index()
         {
-            var contacts = _dbContext.Contacts.ToList();
+            var contacts = _dbContext.Contacts.OrderBy(c => c.CreatedAt).ToList();
+            Order(contacts);
             return View(contacts);
         }
 
@@ -28,10 +31,12 @@ namespace Phonebook.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult Add(Contact contact)
         {
             if (ModelState.IsValid)
             {
+                contact.CreatedAt = System.DateTime.Now;
                 _dbContext.Contacts.Add(contact);
                 _dbContext.SaveChanges();
                 return RedirectToAction(nameof(Index));
@@ -52,13 +57,14 @@ namespace Phonebook.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult Update(Contact contact)
         {
             if (ModelState.IsValid)
             {
                 _dbContext.Contacts.Update(contact);
                 _dbContext.SaveChanges();
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(Index), "Phonebook");
             }
 
             return View(nameof(Edit), contact);
@@ -71,11 +77,11 @@ namespace Phonebook.Controllers
             {
                 NotFound();
             }
-
             return View(contact);
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult Remove(int id)
         {
             var contact = _dbContext.Contacts.Find(id);
@@ -88,6 +94,14 @@ namespace Phonebook.Controllers
             _dbContext.SaveChanges();
 
             return RedirectToAction(nameof(Index));
+        }
+
+        public void Order(List<Contact> contacts)
+        {
+            for (int i = 0; i < contacts.Count; i++)
+            {
+                contacts[i].Order = i + 1;
+            }
         }
     }
 }
