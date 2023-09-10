@@ -1,5 +1,29 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
-}
+﻿@model Phonebook.Models.Contact
+
+<h2>Create New Contact</h2>
+
+<div class="card-body">
+
+    <form method="post" asp-controller="Phonebook" asp-action="Add">
+
+        <div class="mb-3">
+            <label class="col-form-label">First Name</label>
+            <input asp-for=FirstName type="text" class="form-control" required />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Last Name</label>
+            <input asp-for=LastName type="text" class="form-control" required />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-check-label">Phone Number</label>
+            <input asp-for=PhoneNumber type="text" class="form-control" required/>
+        </div>
+
+        <div>
+            <button class="btn btn-primary">Submit</button>
+        </div>
+
+    </form>
+</div>
