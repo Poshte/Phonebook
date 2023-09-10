@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Phonebook.Controllers.Services
 {
-    public class ContactOrderingService
+    public class ContactOrderingService : IContactOrderingService
     {
         public void OrderContacts(List<Contact> contacts)
         {

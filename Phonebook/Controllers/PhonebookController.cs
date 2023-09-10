@@ -13,9 +13,9 @@ namespace Phonebook.Controllers
     public class PhonebookController : Controller
     {
         private readonly IContactRepository _contactRepository;
-        private readonly ContactOrderingService _orderingService;
+        private readonly IContactOrderingService _orderingService;
 
-        public PhonebookController(IContactRepository contactRepository, ContactOrderingService orderingService)
+        public PhonebookController(IContactRepository contactRepository, IContactOrderingService orderingService)
         {
             _contactRepository = contactRepository;
             _orderingService = orderingService;

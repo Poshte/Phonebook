@@ -30,7 +30,8 @@ namespace Phonebook
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddScoped<IContactRepository, ContactRepository>();
-            services.AddScoped<ContactOrderingService>();
+            services.AddScoped<IContactOrderingService, ContactOrderingService>();
+
             services.AddDbContext<PhonebookContext>(options =>
                 options.UseSqlServer(
                     Configuration.GetConnectionString("DefaultConnection")));
