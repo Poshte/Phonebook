@@ -14,6 +14,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Phonebook
 {
@@ -31,6 +33,7 @@ namespace Phonebook
         {
             services.AddScoped<IContactRepository, ContactRepository>();
             services.AddScoped<IContactOrderingService, ContactOrderingService>();
+            services.AddScoped<IOTPVerificationService, OTPVerificationService>();
 
             services.AddDbContext<PhonebookContext>(options =>
                 options.UseSqlServer(
@@ -40,6 +43,8 @@ namespace Phonebook
 
             services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
                 .AddEntityFrameworkStores<PhonebookContext>();
+
+            services.AddSession();
 
             services.AddControllersWithViews();
         }
@@ -63,14 +68,27 @@ namespace Phonebook
 
             app.UseRouting();
 
+            app.UseSession();
+
             app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllerRoute(
+                    name: "authentication",
+                    pattern: "authentication/{action=Index}",
+                    defaults: new { controller = "Authentication" });
+
+                endpoints.MapControllerRoute(
+                    name: "phonebook",
+                    pattern: "phonebook/{action=Index}",
+                    defaults: new { controller = "Phonebook" });
+
+                endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
+
                 endpoints.MapRazorPages();
             });
         }

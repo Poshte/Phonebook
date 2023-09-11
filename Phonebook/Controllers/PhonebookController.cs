@@ -1,31 +1,37 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Phonebook.Controllers.Services;
 using Phonebook.DAL;
 using Phonebook.Models;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Phonebook.Controllers
 {
     [Authorize]
     public class PhonebookController : Controller
     {
+        private readonly IOTPVerificationService _oTPVerificationService;
         private readonly IContactRepository _contactRepository;
         private readonly IContactOrderingService _orderingService;
 
-        public PhonebookController(IContactRepository contactRepository, IContactOrderingService orderingService)
+        public PhonebookController(IOTPVerificationService oTPVerificationService, IContactRepository contactRepository, IContactOrderingService orderingService)
         {
+            _oTPVerificationService = oTPVerificationService;
             _contactRepository = contactRepository;
             _orderingService = orderingService;
         }
 
-
-        public IActionResult Index()
+        public IActionResult Index(string userOTP)
         {
+            var isVerified = _oTPVerificationService.IsOTPVerified(userOTP);
+            if (!isVerified)
+            {
+                return RedirectToAction(nameof(Index), "Authentication");
+            }
+
             var contacts = _contactRepository.GetAllContacts();
             _orderingService.OrderContacts(contacts);
+
             return View(contacts);
         }
 

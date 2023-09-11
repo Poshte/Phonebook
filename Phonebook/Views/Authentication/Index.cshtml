@@ -1,0 +1,22 @@
+﻿@model string
+
+<h1>Verification</h1>
+
+@if (!string.IsNullOrEmpty(Model))
+{
+    <div class="alert alert-danger" role="alert">
+        @Model
+    </div>
+}
+
+
+<form method="post" asp-controller="Phonebook" asp-action="Index">
+
+    <div class="form-group">
+        <label for="otpCode" class="col-form-label">A code has been sent to your Email address. Enter the code here.</label>
+        <input class="form-control" type="number" id="otpCode" name="userOTP" required />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Verify</button>
+
+</form>
