@@ -44,6 +44,8 @@ namespace Phonebook
             services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
                 .AddEntityFrameworkStores<PhonebookContext>();
 
+            services.AddDistributedMemoryCache();
+
             services.AddSession();
 
             services.AddControllersWithViews();

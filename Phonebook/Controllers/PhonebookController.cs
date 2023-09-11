@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Extensions;
+using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
 using Phonebook.Controllers.Services;
 using Phonebook.DAL;
@@ -23,10 +25,18 @@ namespace Phonebook.Controllers
 
         public IActionResult Index(string userOTP)
         {
-            var isVerified = _oTPVerificationService.IsOTPVerified(userOTP);
-            if (!isVerified)
+            var isVerified = HttpContext.Session.GetString("IsVerified");
+
+            if (string.IsNullOrEmpty(isVerified))
             {
-                return RedirectToAction(nameof(Index), "Authentication");
+                var isOTPVerified = _oTPVerificationService.IsOTPVerified(userOTP);
+                if (!isOTPVerified)
+                {
+                    return RedirectToAction(nameof(Index), "Authentication");
+                }
+
+                HttpContext.Session.SetString("IsVerified", "true");
+                isVerified = "true";
             }
 
             var contacts = _contactRepository.GetAllContacts();
